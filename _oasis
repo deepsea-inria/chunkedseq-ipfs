@@ -1,0 +1,24 @@
+OASISFormat:  0.4
+Name:         chunkedseq-ipfs
+Version:      0.1
+License:      MIT
+Authors:      Deepsea
+Copyrights:   (C) 2017 Deepsea
+BuildTools:   ocamlbuild
+Plugins:      DevFiles (0.4), META (0.4)
+
+Synopsis: A purely functional representation for dynamic sequence, embedded as a hash-code based data structure in IPFS
+
+Library chunkedseq-ipfs
+  Path: src/
+  Modules: Chunk
+  BuildDepends: ocplib-endian
+
+Executable test
+  Path: test/
+  Install: false
+  Build$: flag(tests)
+  Custom: true
+  CompiledObject: best
+  MainIs: test.ml
+  BuildDepends: chunkedseq-ipfs
