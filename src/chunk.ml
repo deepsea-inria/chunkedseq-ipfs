@@ -41,8 +41,6 @@ module Chunk =
 
     type chunk_pointer = string
 
-    let K = 2
-
     let contents_of_chunk c =
       match c with
       | `Map [(`Int w, `Array xs)] ->
@@ -61,7 +59,7 @@ module Chunk =
       | `Bytes p -> weight_of_chunk p
       | _ -> assert false
             
-    let create =
+    let create : chunk =
       mk_chunk 0 []
 
     let push_back c x =
@@ -96,3 +94,5 @@ module Chunk =
 
         
   end
+
+    let _ = Printf.printf "hi\n"

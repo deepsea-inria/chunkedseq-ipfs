@@ -9,16 +9,15 @@ Plugins:      DevFiles (0.4), META (0.4)
 
 Synopsis: A purely functional representation for dynamic sequence, embedded as a hash-code based data structure in IPFS
 
-Library chunkedseq-ipfs
+Library chunkedseq
   Path: src/
-  Modules: Chunk
+  Modules: CBOR
   BuildDepends: ocplib-endian
 
-Executable test
-  Path: test/
+Executable bar
+  Path: src/
   Install: false
-  Build$: flag(tests)
   Custom: true
   CompiledObject: best
-  MainIs: test.ml
-  BuildDepends: chunkedseq-ipfs
+  MainIs: chunk.ml
+  BuildDepends: cbor
