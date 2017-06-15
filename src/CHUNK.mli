@@ -21,7 +21,5 @@ val pop_back : chunk -> (chunk * item)
 val ipfs_put_cbor : cbor -> hash
 
 val ipfs_get_cbor : hash -> cbor
-
-val ipfs_get_nb_bytes_of_cbor : hash -> int
                            
 end

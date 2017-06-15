@@ -112,9 +112,15 @@ module Simple =
          ()));
       ! result
 
+    let weight_key = "wt"
+
+    let contents_key = "ct"
+
     let contents_of_chunk c =
       match c with
-      | `Map [(`Text _, `Int w); (`Text _, `Array xs)] ->
+      | `Map [ (`Text weight_key, `Int w);      (`Text contents_key, `Array xs); ] ->
+          (w, xs)
+      | `Map [ (`Text contents_key, `Array xs); (`Text weight_key, `Int w); ] ->
           (w, xs)
       | _ -> assert false
 
@@ -122,12 +128,24 @@ module Simple =
       `Map [(`Text "weight", `Int w); (`Text "contents", `Array xs)]
 
     let weight_of_chunk : chunk_pointer -> weight = fun p ->
-      failwith "todo"
+      (* later: see if it's possible to load just the weight via ipfs *)
+      let c = ipfs_get_cbor p in
+      let (w, _) = contents_of_chunk c in
+      w
 
+    let ipfs_link_prefix = "/ipfs/"
+
+    let ipfs_hash_of_link l =
+      let spos = String.length ipfs_link_prefix in
+      String.sub l spos (String.length l - spos)
+        
     let weight_of_item x =
       match x with
-      | `Int _ -> 1
-      | `Bytes p -> weight_of_chunk p
+      | `Int _ ->
+         1
+      | `Map [ (`Text "/", `Text l) ] ->
+         let p = ipfs_hash_of_link l in
+         weight_of_chunk p
       | _ -> assert false
             
     let create : chunk =
