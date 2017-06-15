@@ -11,13 +11,13 @@ Synopsis: A purely functional representation for dynamic sequence, embedded as a
 
 Library chunkedseq
   Path: src/
-  Modules: CBOR
-  BuildDepends: ocplib-endian
-
-Executable bar
-  Path: src/
-  Install: false
-  Custom: true
-  CompiledObject: best
-  MainIs: chunk.ml
+  Modules: CHUNK
   BuildDepends: cbor
+
+Executable test
+  Path: test/
+  BuildTools:ocamlbuild
+  Install: true
+  CompiledObject: best
+  MainIs: test.ml
+  BuildDepends: chunkedseq, unix
