@@ -66,6 +66,39 @@ module Simple =
           ()));
       ! result
 
+        (*
+    let ipfs_put_cbor_to_file : cbor -> hash = fun c ->
+      let b = CBOR.Simple.encode c in
+      let result = ref "" in
+      let (fd_in1, fd_out1) = Unix.pipe() in
+      let (fd_in2, fd_out2) = Unix.pipe() in
+      (match Unix.fork() with
+       | 0 -> (
+          Unix.dup2 fd_in1 Unix.stdin;
+          Unix.dup2 fd_out2 Unix.stdout;
+          Unix.close fd_in1;
+          Unix.close fd_out1;
+          Unix.close fd_out2;
+          let foo_path = "/Users/rainey/Work/chunkedseq-ipfs/foo.sh" in
+          Unix.handle_unix_error Unix.execv foo_path ([| foo_path |]);
+          ())
+       | _ -> (
+          let out_ch = Unix.out_channel_of_descr fd_out1 in
+          output_bytes out_ch b;
+          close_out out_ch;
+          (match Unix.wait () with
+           | (pid, Unix.WEXITED retcode) -> ()
+           | _ -> failwith "ipfs put");
+          let buf = Bytes.create hash_len in
+          let in_ch = Unix.in_channel_of_descr fd_in2 in
+          input in_ch buf 0 hash_len;
+          close_in in_ch;
+          result := Bytes.to_string buf;
+          Unix.close fd_in1;
+          ()));
+      ! result
+         *)
+        
     let ipfs_get_nb_bytes_of_cbor : hash -> int = fun h ->
       let result = ref 0 in
       let (fd_in, fd_out) = Unix.pipe() in
@@ -125,7 +158,7 @@ module Simple =
       | _ -> assert false
 
     let mk_chunk w xs =
-      `Map [(`Text "weight", `Int w); (`Text "contents", `Array xs)]
+      `Map [(`Text weight_key, `Int w); (`Text contents_key, `Array xs)]
 
     let weight_of_chunk : chunk_pointer -> weight = fun p ->
       (* later: see if it's possible to load just the weight via ipfs *)
@@ -133,20 +166,21 @@ module Simple =
       let (w, _) = contents_of_chunk c in
       w
 
-    let ipfs_link_prefix = "/ipfs/"
+    let mk_item x =
+      `Int x
 
-    let ipfs_hash_of_link l =
-      let spos = String.length ipfs_link_prefix in
-      String.sub l spos (String.length l - spos)
+    let mk_link h =
+      `Link h
         
     let weight_of_item x =
       match x with
       | `Int _ ->
          1
-      | `Map [ (`Text "/", `Text l) ] ->
-         let p = ipfs_hash_of_link l in
-         weight_of_chunk p
-      | _ -> assert false
+      | `Link l ->
+         let _ = Printf.printf "l=%s\n" l in
+         weight_of_chunk l
+      | _ ->
+         assert false
             
     let create : chunk =
       mk_chunk 0 []
@@ -178,10 +212,15 @@ module Simple =
       match xs with
       | x :: xs' ->
           let w' = w - weight_of_item x in
-          mk_chunk w' xs'
+          (mk_chunk w' xs', x)
       | _ -> assert false
 
-        
+                    (*
+    let concat (c1, c2) =
+      let (w1, xs1) = contents_of_chunk c1 in
+      let (w2, xs2) = contents_of_chunk c2 in
+      (w1 + w2, List.append [xs1; xs2])
+                     *)        
   end
 
 

@@ -9,10 +9,15 @@ Plugins:      DevFiles (0.4), META (0.4)
 
 Synopsis: A purely functional representation for dynamic sequence, embedded as a hash-code based data structure in IPFS
 
+Library cbor2
+  Path: cbor2
+  Modules: CBOR
+  BuildDepends: ocplib-endian, bignum
+
 Library chunkedseq
   Path: src/
   Modules: CHUNK
-  BuildDepends: cbor
+  BuildDepends: cbor2
 
 Executable test
   Path: test/
