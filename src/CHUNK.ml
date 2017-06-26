@@ -215,12 +215,35 @@ module Simple =
           (mk_chunk w' xs', x)
       | _ -> assert false
 
-                    (*
     let concat (c1, c2) =
       let (w1, xs1) = contents_of_chunk c1 in
       let (w2, xs2) = contents_of_chunk c2 in
-      (w1 + w2, List.append [xs1; xs2])
-                     *)        
+      let w = w1 + w2 in
+      let xs = List.append xs1 xs2 in
+      mk_chunk w xs
+
+    let sigma xs =
+      let ws = List.map weight_of_item xs in
+      List.fold_left (fun x y -> x + y) 0 ws
+               
+    let split (c, i) =
+      let rec f (sx, xs, w) =
+        match xs with
+        | x :: xs' ->
+            let w' = w + (weight_of_item x) in
+            if w' > i then
+              (List.rev sx, x, xs')
+            else
+              f (x :: sx, xs', w')
+        | [] ->
+            failwith "Chunk.split: bogus input"
+      in
+      let (_, xs) = contents_of_chunk c in
+      let (xs1, x, xs2) = f ([], xs, 0) in
+      let c1 = mk_chunk (sigma xs1) xs1 in
+      let c2 = mk_chunk (sigma xs2) xs2 in
+      (c1, x, c2)
+
   end
 
 
